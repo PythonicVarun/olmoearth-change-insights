@@ -101,6 +101,7 @@ class AnalysisConfig:
     include_population: bool = True
     include_pollution: bool = True
     include_ward_overlay: bool = True
+    include_historical_imagery: bool = True
     save_composites: bool = True
     save_embedding_change_rasters: bool = True
 
@@ -271,10 +272,12 @@ def run_analysis(config: AnalysisConfig) -> dict[str, Any]:
         round(100.0 * cache_hits / cache_total, 2) if cache_total else 0.0
     )
 
-    historical_imagery = export_historical_imagery_manifest(
-        year_results=year_results,
-        output_dir=config.output_dir,
-    )
+    historical_imagery = empty_historical_imagery_manifest()
+    if config.include_historical_imagery:
+        historical_imagery = export_historical_imagery_manifest(
+            year_results=year_results,
+            output_dir=config.output_dir,
+        )
 
     overlay = build_overlay(boundary, tiles, year_results, config)
     overlay_path = config.output_dir / "overlay.geojson"
@@ -309,9 +312,14 @@ def run_analysis(config: AnalysisConfig) -> dict[str, Any]:
     summary = build_summary(metadata, overlay, year_results, config)
     summary["historical_imagery"] = historical_imagery
     (config.output_dir / "summary.json").write_text(json.dumps(summary, indent=2))
-    (config.output_dir / "historical_imagery.json").write_text(
-        json.dumps(historical_imagery, indent=2)
-    )
+    historical_imagery_manifest_path = config.output_dir / "historical_imagery.json"
+    if config.include_historical_imagery:
+        historical_imagery_manifest_path.write_text(
+            json.dumps(historical_imagery, indent=2)
+        )
+    else:
+        historical_imagery_manifest_path.unlink(missing_ok=True)
+        shutil.rmtree(config.output_dir / "historical_imagery", ignore_errors=True)
     (config.output_dir / "report.md").write_text(render_report(summary))
 
     copy_ui_bundle(config.output_dir)
@@ -396,7 +404,11 @@ def process_tile_year(
         expected_context=expected_cache_context,
     )
     if cached_tile is not None:
-        if not historical_preview_path.exists() and composite_path.exists():
+        if (
+            config.include_historical_imagery
+            and not historical_preview_path.exists()
+            and composite_path.exists()
+        ):
             try:
                 cached_composite, _, _ = read_raster(composite_path)
                 write_historical_preview_image(
@@ -449,7 +461,7 @@ def process_tile_year(
                 crs,
             )
 
-    if not historical_preview_path.exists():
+    if config.include_historical_imagery and not historical_preview_path.exists():
         try:
             write_historical_preview_image(
                 historical_preview_path,
@@ -548,6 +560,14 @@ def process_tile_year(
         pass
 
     return tile_year_data
+
+
+def empty_historical_imagery_manifest() -> dict[str, Any]:
+    return {
+        "available": False,
+        "available_years": [],
+        "years": {},
+    }
 
 
 def export_historical_imagery_manifest(
@@ -1559,6 +1579,7 @@ def build_summary(
             "workers": config.workers,
             "include_population": config.include_population,
             "include_pollution": config.include_pollution,
+            "include_historical_imagery": config.include_historical_imagery,
             "display_cell_size_m": config.patch_size
             * config.display_aggregation
             * config.resolution_m,

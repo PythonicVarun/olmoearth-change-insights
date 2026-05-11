@@ -37,6 +37,7 @@ python scripts/colab_generate_data.py \
   --district "Gautam Buddha Nagar" \
   --output-dir /content/outputs/noida \
   --periods 1 5 \
+  --enable-historical-imagery \
   --max-tiles 1 \
   --zip-output
 ```
@@ -45,6 +46,7 @@ Notes:
 
 - it bootstraps missing Python packages automatically unless you pass `--skip-install`
 - it can use `--device auto` to pick GPU on Colab when available
+- historical imagery export is opt-in in this Colab script; pass `--enable-historical-imagery` to generate preview PNGs + manifest
 - with `--zip-output`, it creates a downloadable archive next to the output folder
 
 Useful runtime controls:
@@ -60,6 +62,7 @@ Useful runtime controls:
 - `--skip-wards` if you want to skip OSM ward aggregation and keep only cell overlays
 - `--skip-change-rasters` to skip writing per-tile change rasters and reduce I/O
 - `--no-save-composites` to skip writing per-tile yearly composite GeoTIFFs
+- `--enable-historical-imagery` to export historical imagery preview PNGs and `historical_imagery.json`
 
 Reruns also reuse per-tile processed caches when inputs are unchanged:
 

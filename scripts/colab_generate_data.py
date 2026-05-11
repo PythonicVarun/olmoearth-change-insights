@@ -6,6 +6,7 @@ Example usage inside Colab:
       --district "Gautam Buddha Nagar" \
       --output-dir /content/outputs/noida \
       --periods 1 5 \
+      --enable-historical-imagery \
       --zip-output
 """
 
@@ -113,6 +114,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip writing per-tile embedding-change rasters to speed up I/O.",
     )
+    parser.add_argument(
+        "--enable-historical-imagery",
+        action="store_true",
+        help="Export historical imagery previews and historical_imagery.json output.",
+    )
     parser.add_argument("--max-tiles", type=int)
     parser.add_argument("--cache-dir", type=Path, default=Path(".cache"))
     parser.add_argument(
@@ -207,6 +213,7 @@ def main() -> None:
         include_population=not args.skip_population,
         include_pollution=not args.skip_pollution,
         include_ward_overlay=not args.skip_wards,
+        include_historical_imagery=args.enable_historical_imagery,
         save_composites=not args.no_save_composites,
         save_embedding_change_rasters=not args.skip_change_rasters,
     )
