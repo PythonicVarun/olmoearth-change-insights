@@ -1135,16 +1135,26 @@ def build_overlay(
             ref = year_results.get(year, {}).get(tile_id)
             if ref is None:
                 continue
-            period_changes[period] = downsample_mean(
-                embedding_shift(base.embeddings, ref.embeddings),
-                display_factor,
-            )
-            period_metrics[period] = {
-                "ndvi": base.ndvi_display - ref.ndvi_display,
-                "mndwi": base.mndwi_display - ref.mndwi_display,
-                "ndbi": base.ndbi_display - ref.ndbi_display,
-                "bsi": base.bsi_display - ref.bsi_display,
-            }
+
+            # Only compute embedding-based changes when embeddings exist
+            if base.embeddings is not None and ref.embeddings is not None:
+                period_changes[period] = downsample_mean(
+                    embedding_shift(base.embeddings, ref.embeddings),
+                    display_factor,
+                )
+
+            # Build metric diffs only when both sides are available
+            metrics: dict[str, np.ndarray] = {}
+            if base.ndvi_display is not None and ref.ndvi_display is not None:
+                metrics["ndvi"] = base.ndvi_display - ref.ndvi_display
+            if base.mndwi_display is not None and ref.mndwi_display is not None:
+                metrics["mndwi"] = base.mndwi_display - ref.mndwi_display
+            if base.ndbi_display is not None and ref.ndbi_display is not None:
+                metrics["ndbi"] = base.ndbi_display - ref.ndbi_display
+            if base.bsi_display is not None and ref.bsi_display is not None:
+                metrics["bsi"] = base.bsi_display - ref.bsi_display
+
+            period_metrics[period] = metrics
             if (
                 base.population_display is not None
                 and ref.population_display is not None
