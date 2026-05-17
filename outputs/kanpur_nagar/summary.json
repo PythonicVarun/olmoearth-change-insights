@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "label": "Kanpur Nagar, Uttar Pradesh, IND",
+    "country_iso3": "IND",
+    "admin_level": "ADM2",
+    "state_name": "Uttar Pradesh",
+    "district_name": "Kanpur Nagar",
+    "area_sq_km": 2899.409841440186,
+    "generated_at_utc": "2026-05-17",
+    "workers_note": "workers>1 was requested with CUDA; using batched tile processing.",
+    "tile_display_cache_hits": 837,
+    "tile_display_cache_misses": 227,
+    "tile_display_cache_hit_rate": 78.67,
+    "coverage_sq_km": 2899.41,
+    "coverage_percent": 100.0,
+    "tile_count": 532,
+    "partial_coverage": false,
+    "ward_overlay_available": true,
+    "ward_count": 2
+  },
+  "config": {
+    "base_year": 2025,
+    "periods": [
+      10
+    ],
+    "model_name": "nano",
+    "tile_size_m": 2560,
+    "workers": 2,
+    "include_population": false,
+    "include_pollution": false,
+    "include_historical_imagery": false,
+    "display_cell_size_m": 160
+  },
+  "scene_counts": {
+    "2015": 7445,
+    "2025": 62857
+  },
+  "feature_count": 114837,
+  "periods": {
+    "10y": {
+      "metrics": {
+        "embedding_change_median": 0.00108,
+        "embedding_change_p95": 0.001604,
+        "vegetation_delta_mean": -0.13786,
+        "water_delta_mean": 0.162905,
+        "urban_delta_mean": -0.047464,
+        "bare_soil_delta_mean": -0.042567
+      },
+      "story_counts": {
+        "Water gain or inundation": 63387,
+        "Mixed land-cover change": 39215,
+        "Urban expansion replacing vegetation": 8730,
+        "Water retreat or drying": 2450,
+        "Greening or crop intensification": 849,
+        "Bare-soil or industrial expansion": 206
+      },
+      "hotspots": [
+        {
+          "latitude": 26.865327,
+          "longitude": 80.101983,
+          "embedding_change": 0.008302,
+          "vegetation_delta": 0.325659,
+          "water_delta": -0.42385,
+          "urban_delta": -0.00595,
+          "bare_soil_delta": 0.100187,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_512"
+        },
+        {
+          "latitude": 26.863882,
+          "longitude": 80.101994,
+          "embedding_change": 0.007109,
+          "vegetation_delta": 0.260309,
+          "water_delta": -0.43791,
+          "urban_delta": 0.047919,
+          "bare_soil_delta": 0.150222,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_504"
+        },
+        {
+          "latitude": 26.865316,
+          "longitude": 80.100372,
+          "embedding_change": 0.006989,
+          "vegetation_delta": 0.323283,
+          "water_delta": -0.420504,
+          "urban_delta": 0.002704,
+          "bare_soil_delta": 0.105094,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_512"
+        },
+        {
+          "latitude": 26.863872,
+          "longitude": 80.100384,
+          "embedding_change": 0.006555,
+          "vegetation_delta": 0.264218,
+          "water_delta": -0.436828,
+          "urban_delta": 0.052375,
+          "bare_soil_delta": 0.153257,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_504"
+        },
+        {
+          "latitude": 26.334617,
+          "longitude": 80.538299,
+          "embedding_change": 0.006217,
+          "vegetation_delta": 0.841317,
+          "water_delta": -1.161441,
+          "urban_delta": 0.406753,
+          "bare_soil_delta": -0.015054,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_259"
+        },
+        {
+          "latitude": 26.333621,
+          "longitude": 80.538201,
+          "embedding_change": 0.00552,
+          "vegetation_delta": 0.407118,
+          "water_delta": -0.834422,
+          "urban_delta": 0.471758,
+          "bare_soil_delta": 0.081706,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_259"
+        },
+        {
+          "latitude": 26.340112,
+          "longitude": 80.530958,
+          "embedding_change": 0.005466,
+          "vegetation_delta": 0.962903,
+          "water_delta": -1.204781,
+          "urban_delta": 0.358316,
+          "bare_soil_delta": -0.069774,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_276"
+        },
+        {
+          "latitude": 25.978755,
+          "longitude": 80.169562,
+          "embedding_change": 0.005232,
+          "vegetation_delta": -0.298769,
+          "water_delta": 0.332272,
+          "urban_delta": -0.008288,
+          "bare_soil_delta": -0.04864,
+          "pollution_delta": null,
+          "story": "Water gain or inundation",
+          "tile_id": "tile_009"
+        }
+      ]
+    }
+  },
+  "historical_imagery": {
+    "available": false,
+    "available_years": [],
+    "years": {}
+  }
+}
