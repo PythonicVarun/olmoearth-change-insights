@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "label": "Jaipur, R\u0101jasth\u0101n, IND",
+    "country_iso3": "IND",
+    "admin_level": "ADM2",
+    "state_name": "R\u0101jasth\u0101n",
+    "district_name": "Jaipur",
+    "area_sq_km": 11289.047392265475,
+    "generated_at_utc": "2026-05-17",
+    "workers_note": "workers>1 was requested with CUDA; using batched tile processing.",
+    "tile_display_cache_hits": 29,
+    "tile_display_cache_misses": 3751,
+    "tile_display_cache_hit_rate": 0.77,
+    "coverage_sq_km": 11289.048,
+    "coverage_percent": 100.0,
+    "tile_count": 1890,
+    "partial_coverage": false,
+    "ward_overlay_available": false,
+    "ward_count": 0
+  },
+  "config": {
+    "base_year": 2025,
+    "periods": [
+      10
+    ],
+    "model_name": "tiny",
+    "tile_size_m": 2560,
+    "workers": 4,
+    "include_population": false,
+    "include_pollution": false,
+    "include_historical_imagery": false,
+    "display_cell_size_m": 160
+  },
+  "scene_counts": {
+    "2015": 9415,
+    "2025": 170748
+  },
+  "feature_count": 443596,
+  "periods": {
+    "10y": {
+      "metrics": {
+        "embedding_change_median": 0.002834,
+        "embedding_change_p95": 0.004658,
+        "vegetation_delta_mean": -0.140431,
+        "water_delta_mean": 0.290047,
+        "urban_delta_mean": -0.067682,
+        "bare_soil_delta_mean": -0.098152
+      },
+      "story_counts": {
+        "Water gain or inundation": 384012,
+        "Water retreat or drying": 34853,
+        "Urban expansion replacing vegetation": 20318,
+        "Mixed land-cover change": 3017,
+        "Greening or crop intensification": 1355,
+        "Bare-soil or industrial expansion": 41
+      },
+      "hotspots": [
+        {
+          "latitude": 27.684804,
+          "longitude": 76.170406,
+          "embedding_change": 0.024439,
+          "vegetation_delta": 0.366189,
+          "water_delta": -0.867358,
+          "urban_delta": 0.382649,
+          "bare_soil_delta": 0.256054,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1829"
+        },
+        {
+          "latitude": 27.685007,
+          "longitude": 76.146072,
+          "embedding_change": 0.023328,
+          "vegetation_delta": 0.337036,
+          "water_delta": -0.841988,
+          "urban_delta": 0.375692,
+          "bare_soil_delta": 0.292544,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1828"
+        },
+        {
+          "latitude": 27.680485,
+          "longitude": 76.168738,
+          "embedding_change": 0.023285,
+          "vegetation_delta": 0.360415,
+          "water_delta": -0.826748,
+          "urban_delta": 0.339611,
+          "bare_soil_delta": 0.238492,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1818"
+        },
+        {
+          "latitude": 27.68479,
+          "longitude": 76.172029,
+          "embedding_change": 0.023054,
+          "vegetation_delta": 0.338799,
+          "water_delta": -0.874184,
+          "urban_delta": 0.393223,
+          "bare_soil_delta": 0.263438,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1829"
+        },
+        {
+          "latitude": 27.685021,
+          "longitude": 76.14445,
+          "embedding_change": 0.022893,
+          "vegetation_delta": 0.303069,
+          "water_delta": -0.849555,
+          "urban_delta": 0.414246,
+          "bare_soil_delta": 0.315131,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1828"
+        },
+        {
+          "latitude": 27.684817,
+          "longitude": 76.168784,
+          "embedding_change": 0.022845,
+          "vegetation_delta": 0.363616,
+          "water_delta": -0.919587,
+          "urban_delta": 0.424963,
+          "bare_soil_delta": 0.29373,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1829"
+        },
+        {
+          "latitude": 27.681929,
+          "longitude": 76.168753,
+          "embedding_change": 0.022623,
+          "vegetation_delta": 0.356752,
+          "water_delta": -0.873899,
+          "urban_delta": 0.38447,
+          "bare_soil_delta": 0.258445,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1818"
+        },
+        {
+          "latitude": 27.679055,
+          "longitude": 76.1671,
+          "embedding_change": 0.021643,
+          "vegetation_delta": 0.362878,
+          "water_delta": -0.807975,
+          "urban_delta": 0.306885,
+          "bare_soil_delta": 0.229684,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_1818"
+        }
+      ]
+    }
+  },
+  "historical_imagery": {
+    "available": false,
+    "available_years": [],
+    "years": {}
+  }
+}
