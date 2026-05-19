@@ -138,6 +138,12 @@ body:not(.is-loading) .loading-screen {
     background: linear-gradient(90deg, var(--accent), var(--accent-strong));
     animation: loadingPulse 1.15s ease-in-out infinite;
     transform-origin: left center;
+    transition: width 0.16s linear, opacity 0.16s ease;
+}
+
+.loading-bar-fill.is-determinate {
+    animation: none;
+    transform: none;
 }
 
 @keyframes loadingPulse {
