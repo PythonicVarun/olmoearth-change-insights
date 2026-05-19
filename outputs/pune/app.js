@@ -99,6 +99,7 @@ const basemapDefinitions = {
 };
 
 const historicalPlaybackSpeeds = [2000, 1200, 800, 450];
+const MIN_PROGRESS_WIDTH_PERCENT = 2;
 
 function parseFiniteNumber(value, { min = -Infinity, max = Infinity } = {}) {
     if (value === null || value === undefined || value === "") {
@@ -383,6 +384,72 @@ function setLoadingState(isLoading, message) {
         document.getElementById("loadingMessage").textContent = message;
     }
     document.body.classList.toggle("is-loading", isLoading);
+}
+
+function setLoadingProgress(progressFraction) {
+    const fill = document.querySelector(".loading-bar-fill");
+    if (!fill) {
+        return;
+    }
+    if (!Number.isFinite(progressFraction)) {
+        fill.classList.remove("is-determinate");
+        fill.style.width = "";
+        return;
+    }
+
+    const clamped = Math.max(0, Math.min(1, progressFraction));
+    fill.classList.add("is-determinate");
+    fill.style.width = `${Math.max(MIN_PROGRESS_WIDTH_PERCENT, Math.round(clamped * 100))}%`;
+}
+
+function formatBytesWithMbUnit(bytes) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+async function fetchJsonWithProgress(url, { optional = false, onProgress } = {}) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (optional) {
+                return null;
+            }
+            throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
+        }
+
+        if (!response.body) {
+            const text = await response.text();
+            onProgress?.({ loadedBytes: text.length, totalBytes: text.length, done: true });
+            return JSON.parse(text);
+        }
+
+        const totalBytes = Number(response.headers.get("content-length")) || null;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let loadedBytes = 0;
+        let text = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            loadedBytes += value.byteLength;
+            text += decoder.decode(value, { stream: true });
+            onProgress?.({ loadedBytes, totalBytes, done: false });
+        }
+        text += decoder.decode();
+        onProgress?.({
+            loadedBytes,
+            totalBytes: totalBytes ?? loadedBytes,
+            done: true,
+        });
+        return JSON.parse(text);
+    } catch (error) {
+        if (optional) {
+            return null;
+        }
+        throw error;
+    }
 }
 
 function interpolateColor(colors, t) {
@@ -1628,22 +1695,85 @@ function populateUnitSelect() {
 
 async function loadData() {
     updateLocationChrome();
+    // Approximate resource-size weighting so progress reflects perceived load time.
+    const progressWeights = {
+        summary: 8, // small metadata JSON
+        overlay: 72, // primary large GeoJSON payload
+        boundary: 6, // optional, usually small boundary geometry
+        wardOverlay: 6, // optional, moderate-size ward polygons
+        waybackConfig: 8, // remote Wayback configuration JSON
+    };
+    const totalWeight = Object.values(progressWeights).reduce((sum, value) => sum + value, 0);
+    let completedWeight = 0;
+    const activeProgress = {};
+
+    const calculateOverallProgress = () => {
+        const activeWeight = Object.entries(activeProgress).reduce((sum, [key, fraction]) => {
+            const weighted = (progressWeights[key] ?? 0) * fraction;
+            return sum + weighted;
+        }, 0);
+        return (completedWeight + activeWeight) / totalWeight;
+    };
+
+    const updateProgressUi = (message) => {
+        if (message) {
+            document.getElementById("loadingMessage").textContent = message;
+        }
+        setLoadingProgress(calculateOverallProgress());
+    };
+
+    const markResourceComplete = (key) => {
+        completedWeight += progressWeights[key] ?? 0;
+        delete activeProgress[key];
+        setLoadingProgress(calculateOverallProgress());
+    };
+
+    const loadResource = (key, url, { optional = false, progressMessageBuilder } = {}) =>
+        fetchJsonWithProgress(url, {
+            optional,
+            onProgress: ({ loadedBytes, totalBytes, done }) => {
+                if (totalBytes && totalBytes > 0) {
+                    activeProgress[key] = Math.min(1, loadedBytes / totalBytes);
+                } else if (done) {
+                    activeProgress[key] = 1;
+                } else {
+                    activeProgress[key] = 0;
+                }
+                updateProgressUi(progressMessageBuilder?.({ loadedBytes, totalBytes, done }));
+                if (done) {
+                    markResourceComplete(key);
+                }
+            },
+        });
+
     setLoadingState(
         true,
         "Loading summary, overlays, boundary, and Wayback imagery configuration.",
     );
+    setLoadingProgress(0);
+    let overlayTotalBytesValue = null;
+    let overlayTotalBytesLabel = null;
     const [summary, overlay, boundary, wardOverlay, waybackConfig] = await Promise.all([
-        fetch("summary.json").then((response) => response.json()),
-        fetch("https://proxy.pythonicvarun.me/https://github.com/PythonicVarun/olmoearth-change-insights/releases/download/assets-2026-05-19/pune-overlay.geojson").then((response) => response.json()),
-        fetch("boundary.geojson")
-            .then((response) => (response.ok ? response.json() : null))
-            .catch(() => null),
-        fetch("ward_overlay.geojson")
-            .then((response) => (response.ok ? response.json() : null))
-            .catch(() => null),
-        fetch(WAYBACK_CONFIG_URL)
-            .then((response) => (response.ok ? response.json() : null))
-            .catch(() => null),
+        loadResource("summary", "summary.json"),
+        loadResource("overlay", "https://proxy.pythonicvarun.me/https://github.com/PythonicVarun/olmoearth-change-insights/releases/download/assets-2026-05-19/pune-overlay.geojson", {
+            progressMessageBuilder: ({ loadedBytes, totalBytes, done }) => {
+                if (done) {
+                    return "Overlay loaded. Finishing setup.";
+                }
+                if (totalBytes) {
+                    if (overlayTotalBytesValue !== totalBytes) {
+                        overlayTotalBytesValue = totalBytes;
+                        overlayTotalBytesLabel = formatBytesWithMbUnit(totalBytes);
+                    }
+                    const percentage = Math.round((loadedBytes / totalBytes) * 100);
+                    return `Loading overlay.geojson: ${percentage}% (${formatBytesWithMbUnit(loadedBytes)} of ${overlayTotalBytesLabel})`;
+                }
+                return `Loading overlay.geojson: ${formatBytesWithMbUnit(loadedBytes)} downloaded`;
+            },
+        }),
+        loadResource("boundary", "boundary.geojson", { optional: true }),
+        loadResource("wardOverlay", "ward_overlay.geojson", { optional: true }),
+        loadResource("waybackConfig", WAYBACK_CONFIG_URL, { optional: true }),
     ]);
 
     state.summary = summary;
@@ -1708,6 +1838,7 @@ async function loadData() {
     updateLayer();
     state.urlSyncEnabled = true;
     syncUrlState();
+    setLoadingProgress(1);
     window.requestAnimationFrame(() => setLoadingState(false));
 }
 
