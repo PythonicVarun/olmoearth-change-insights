@@ -371,7 +371,7 @@ def resolve_ward_boundaries(
     boundary: ResolvedBoundary,
     cache_dir: Path,
 ) -> gpd.GeoDataFrame:
-    """Resolve ward-like administrative polygons inside a district boundary.
+    """Resolve ward-like administrative polygons inside a district or city boundary.
 
     This is best-effort and currently uses OSM administrative polygons as the
     source. If no reasonable ward-like polygons are available, an empty frame is
