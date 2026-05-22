@@ -181,7 +181,7 @@ http://localhost:8000/ui/?basemap=none
 
 ```bash
 uv run python scripts/run_india_news_scan.py \
-  --config configs/target.json \
+  --config config/target.json \
   --output-dir outputs/india-news-scan \
   --max-tiles 1
 ```
