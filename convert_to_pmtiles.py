@@ -259,10 +259,10 @@ def gh_download_geojson(asset_path: str, dest: Path) -> None:
     )
     if result.returncode != 0:
         raise RuntimeError(f"gh download failed: {result.stderr.strip()}")
-    # gh downloads with the original filename; rename if needed
+    # gh downloads with the original filename; rename/overwrite if needed
     downloaded = dest.parent / filename
     if downloaded != dest:
-        downloaded.rename(dest)
+        downloaded.replace(dest)  # replace() overwrites dest if it exists (unlike rename())
     print(f"    Downloaded → {dest.name}")
 
 

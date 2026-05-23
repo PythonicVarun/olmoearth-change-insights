@@ -6,5 +6,7 @@ outputs/chengalputtu/overlay.geojson
 .venv/
 .playwright*/
 outputs/**/_overlay_dl.geojson
+outputs/**/*-overlay.geojson
+*.log
 *.png
 serve_range.py
