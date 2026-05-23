@@ -266,9 +266,12 @@ def gh_download_geojson(asset_path: str, dest: Path) -> None:
     print(f"    Downloaded → {dest.name}")
 
 
-def gh_upload_release(tag: str, files: list[Path], script_dir: Path) -> None:
-    """Create/update a GitHub release and upload files."""
-    # Check if release exists
+def gh_upload_release(tag: str, named_files: list[tuple[str, Path]], script_dir: Path) -> None:
+    """Create/update a GitHub release and upload files with city-prefixed asset names.
+
+    named_files: list of (asset_name, local_path) — asset_name is the name the file
+    gets on the GitHub release (e.g. "jaipur-overlay.pmtiles").
+    """
     check = subprocess.run(
         ["gh", "release", "view", tag, "--repo", GH_REPO],
         capture_output=True, text=True,
@@ -281,13 +284,19 @@ def gh_upload_release(tag: str, files: list[Path], script_dir: Path) -> None:
              "--notes", "Large PMTiles overlay files (>50 MB). Auto-generated."],
             cwd=str(script_dir), check=True,
         )
-    for path in files:
-        print(f"    Uploading {path.name} ({path.stat().st_size / 1024 / 1024:.1f} MB) …")
-        subprocess.run(
-            ["gh", "release", "upload", tag, str(path), "--repo", GH_REPO, "--clobber"],
-            cwd=str(script_dir), check=True,
-        )
-        print(f"    ✓ {path.name}")
+    for asset_name, path in named_files:
+        size_mb = path.stat().st_size / 1024 / 1024
+        print(f"    Uploading {asset_name} ({size_mb:.1f} MB) …")
+        # gh release upload doesn't have a --name flag; rename via a temp symlink/copy
+        import tempfile, shutil
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp) / asset_name
+            shutil.copy2(path, tmp_path)
+            subprocess.run(
+                ["gh", "release", "upload", tag, str(tmp_path), "--repo", GH_REPO, "--clobber"],
+                cwd=str(script_dir), check=True,
+            )
+        print(f"    ✓ {asset_name}")
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────
@@ -344,8 +353,9 @@ def main() -> None:
                 min_zoom=args.min_zoom, max_zoom=args.max_zoom,
             )
             if size_mb > LARGE_FILE_MB:
-                large_pmtiles.append((f"{city}/overlay", pmtiles_path))
-                url_map[city]["overlay_pmtiles"] = f"RELEASE:{pmtiles_path.name}"
+                asset_name = f"{city}-overlay.pmtiles"
+                large_pmtiles.append((asset_name, pmtiles_path))
+                url_map[city]["overlay_pmtiles"] = f"RELEASE:{asset_name}"
             else:
                 url_map[city]["overlay_pmtiles"] = "overlay.pmtiles"
 
@@ -363,8 +373,9 @@ def main() -> None:
                 min_zoom=args.min_zoom, max_zoom=args.max_zoom,
             )
             if size_mb > LARGE_FILE_MB:
-                large_pmtiles.append((f"{city}/ward_overlay", pmtiles_path))
-                url_map[city]["ward_pmtiles"] = f"RELEASE:{pmtiles_path.name}"
+                asset_name = f"{city}-ward_overlay.pmtiles"
+                large_pmtiles.append((asset_name, pmtiles_path))
+                url_map[city]["ward_pmtiles"] = f"RELEASE:{asset_name}"
             else:
                 url_map[city]["ward_pmtiles"] = "ward_overlay.pmtiles"
 
@@ -373,7 +384,7 @@ def main() -> None:
         print(f"\n{'='*60}")
         print(f"  Uploading {len(large_pmtiles)} large PMTiles to GitHub release: {NEW_RELEASE_TAG}")
         print(f"{'='*60}")
-        gh_upload_release(NEW_RELEASE_TAG, [p for _, p in large_pmtiles], script_dir)
+        gh_upload_release(NEW_RELEASE_TAG, large_pmtiles, script_dir)
 
     # ── Summary ────────────────────────────────────────────────────────────
     print(f"\n{'='*60}")
