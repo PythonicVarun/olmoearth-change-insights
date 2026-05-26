@@ -389,6 +389,105 @@ const INSIGHTS = [
         },
         references: [],
     },
+    {
+        title: "Tapi's Mangroves Erased for Illegal Multi-Crore Shrimp Farms",
+        location: "Surat",
+        content:
+            "Satellite imagery over Kidiabet reveals a massive ecological crime where the Tapi River’s natural estuary and mangroves have been systematically wiped out to create a vast grid of rectangular aquaculture ponds. What spatial algorithms flag as a drastic shift in coastal vegetation and water patterns is actually the sprawling footprint of an illegal commercial shrimp farming syndicate. Driven by high export profits, encroachers have seized hundreds of hectares of vulnerable government floodplains, directly blocking natural tidal flows and increasing local flood risks. Following intense environmental petitions, the National Green Tribunal and Surat's district administration have finally initiated a massive crackdown, booking operators under the strict Gujarat Land Grabbing Act to demolish these unauthorized farms and reclaim the coastline.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/surat/shrimp_farms/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/surat/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=21.12207&lng=72.69486&zoom=15.76&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/surat/shrimp_farms/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/surat/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=21.12207&lng=72.69486&zoom=15.76&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Indian Express", url: "https://indianexpress.com/article/india/surat-collector-directs-farm-owners-to-demolish-illegal-shrimp-ponds-7129435/" },
+            { label: "SeafoodSource", url: "https://www.seafoodsource.com/news/environment-sustainability/district-in-india-s-gujarat-mulls-crackdown-on-illegal-shrimp-farms" },
+        ],
+    },
+    {
+        title: "Rs 440-Crore Cultural Conch Wipes Out Alipore's Green Canopy",
+        location: "Kolkata",
+        content:
+            "Satellite imagery over Alipore reveals a dramatic ecological trade-off, where a lush, dense urban canopy has been entirely bulldozed to construct the new Dhono Dhanyo Auditorium. Built at a massive cost of Rs 440 crore by the state government, this 4.5-acre architectural marvel was designed in the shape of a divine conch to serve as Kolkata's premier cultural hub. While the facility boasts a 2,000-seater main hall and modern civic amenities, its sprawling concrete and zinc footprint comes at a direct, permanent cost to the neighborhood's environment. What spatial algorithms register as a severe plunge in the vegetation index is simply the undeniable, ground-level reality of prioritizing massive civic mega-projects over the city's vital green lungs.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/kolkata/dhono_dhanyo/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=22.53011&lng=88.33981&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/kolkata/dhono_dhanyo/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=22.53011&lng=88.33981&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Telegraph India", url: "https://www.telegraphindia.com/my-kolkata/news/west-bengal-chief-minister-mamata-banerjee-inaugurates-rs-440-crore-dhono-dhanyo-auditorium-in-kolkatas-alipore/cid/1929619" },
+        ],
+    },
+    {
+        title: "Kolkata's Iconic Maidan Carved Up for New Underground Metro",
+        location: "Kolkata",
+        content:
+            "Satellite imagery over Kolkata's historic Maidan reveals a massive rectangular excavation right outside the Victoria Memorial, permanently replacing what was once a lush, symmetric green garden. What spatial algorithms flag as a severe plunge in vegetation is the controversial ground-zero for the new underground Victoria Memorial Metro Station on the Joka-Esplanade (Purple) Line. To execute this multi-crore transit project, Rail Vikas Nigam Limited (RVNL) had to bulldoze and dig up a massive chunk of the city's vital \"green lung,\" sparking intense legal battles—reaching all the way to the Supreme Court—over the proposed felling and transplantation of hundreds of heritage trees. This dramatic satellite contrast captures the harsh reality of rapid urban development: securing Kolkata's modern transit network has come at a highly visible and deeply contested ecological cost to its most famous open space.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/kolkata/victoria_metro/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=22.54786&lng=88.34341&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/kolkata/victoria_metro/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=22.54786&lng=88.34341&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/city/kolkata/victoria-metro-station-construction-28-trees-to-be-felled-fate-of-917-trees-uncertain/articleshow/110189894.cms" },
+            { label: "The Statesman", url: "https://www.thestatesman.com/bengal/sc-halts-tree-felling-for-metro-work-near-victoria-memorial-1503343053.html" },
+        ],
+    },
+    {
+        title: "Salt Lake's Green Buffer Erased for Kolkata's Rs 280-Crore Metro Depot",
+        location: "Kolkata",
+        content:
+            "Satellite imagery reveals a stark ecological sacrifice right on the fringes of Salt Lake's beloved Central Park, where acres of dense urban canopy have been completely bulldozed into bare earth and concrete. What spatial algorithms flag as a severe plunge in vegetation is the sprawling footprint of the newly constructed Central Park Metro Depot. Built at an estimated cost of Rs 280 crore to serve as the operational nerve center for Kolkata's East-West (Green Line) Metro, this massive expanse of maintenance sheds and stabling tracks has permanently replaced a vital neighborhood green lung. It is the undeniable, ground-level trade-off of rapid urbanization: securing modern, high-speed transit for millions has come at a heavy, highly visible cost to the city's environment.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/kolkata/salt_lake_metro/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=urban_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=22.58486&lng=88.41472&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/kolkata/salt_lake_metro/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=urban_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=22.58486&lng=88.41472&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/city/kolkata/kmrc-plans-expansion-of-e-w-metro-depot-may-lay-6-new-tracks/articleshow/109359617.cms" },
+            { label: "Railway Technology", url: "https://www.railway-technology.com/projects/kolkatametro/" },
+        ],
+    },
+    {
+        title: "Wetlands Erased to Expand Kestopur's Mega Sewage Plant",
+        location: "Kolkata",
+        content:
+            "Satellite imagery over Prafulla Kanan reveals a stark ecological trade-off right next to the existing Bagjola Sewage Treatment Plant, where acres of adjoining green marshland have been entirely filled in with earth. This massive loss of natural buffer isn't for private real estate, but the necessary groundwork for a heavily delayed, multi-crore civic expansion mandated by the National Green Tribunal. To stop untreated daily effluent from choking the adjacent Kestopur and Bagjola canals, the state government is building massive new 33-MLD and 41-MLD treatment units directly over the former wetlands within the STP premises. While this mega-project is a desperate, highly necessary step to revive Kolkata's heavily polluted waterways, securing the city's modern sanitation has come at a direct and permanent cost to one of the neighborhood's vital green lungs.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/kolkata/kestopur_stp/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=22.60511&lng=88.41956&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/kolkata/kestopur_stp/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/kolkata/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=22.60511&lng=88.41956&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/city/kolkata/state-to-set-up-three-new-sewage-treatment-plants-along-city-canals/articleshow/112092336.cms" },
+            { label: "Green Tribunal Report", url: "https://www.greentribunal.gov.in/sites/default/files/news_updates/Affidavit%20filed%20by%20UD%20&%20Municipal%20affairs,%20Govt.%20of%20WB%20-%20Tribunal%20On%20its%20Own%20Motion%20Vs.%20State%20of%20West%20Bengal%20&%20Ors.%20%20in%20OA%2014%20of%202017%20(EZ).pdf" },
+        ],
+    },
 ];
 
 function escapeHtml(s) {
