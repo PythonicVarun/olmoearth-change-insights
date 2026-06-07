@@ -164,6 +164,12 @@ def _city_candidate_label(row: pd.Series, fallback: str) -> str:
     return _row_text(row, ("display_name", "name")) or fallback
 
 
+def _geometry_union(geometries: gpd.GeoSeries) -> BaseGeometry:
+    if hasattr(geometries, "union_all"):
+        return geometries.union_all()
+    return geometries.unary_union
+
+
 def _write_geojson(gdf: gpd.GeoDataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     frame = gdf
@@ -224,6 +230,65 @@ def _filter_city_matches(
     return city_matches
 
 
+def _resolve_city_boundary_from_adm2(
+    *,
+    cache_dir: Path,
+    country_iso3: str,
+    city_name: str,
+    state_name: str | None,
+) -> ResolvedBoundary:
+    adm2 = _load_boundary_layer(cache_dir, country_iso3, "ADM2")
+    normalized_city = _normalize_name(city_name)
+    district_matches = adm2[
+        adm2["__norm_name"].str.contains(normalized_city, regex=False)
+    ].copy()
+    if district_matches.empty:
+        raise ValueError(f"Could not find a city boundary matching {city_name!r}.")
+
+    matched_state_name: str | None = state_name
+    if state_name:
+        adm1 = _load_boundary_layer(cache_dir, country_iso3, "ADM1")
+        state_matches = _resolve_exact_or_close(adm1, "__norm_name", state_name)
+        if len(state_matches) != 1:
+            raise ValueError(
+                f"State match for {state_name!r} is ambiguous ({len(state_matches)} rows)."
+            )
+        state_row = state_matches.iloc[0]
+        matched_state_name = str(state_row["shapeName"])
+        points = district_matches.geometry.representative_point()
+        district_matches = district_matches[points.within(state_row.geometry)]
+        if district_matches.empty:
+            raise ValueError(
+                f"City {city_name!r} was found, but no matching administrative polygons sit inside {state_name!r}."
+            )
+
+    exact = district_matches[district_matches["__norm_name"] == normalized_city]
+    if not exact.empty and len(district_matches) == 1:
+        district_matches = exact.copy()
+
+    geometry = _geometry_union(district_matches.geometry)
+    area_sq_km = (
+        gpd.GeoSeries([geometry], crs="EPSG:4326")
+        .to_crs(_local_equal_area_crs())
+        .area.iloc[0]
+        / 1_000_000.0
+    )
+    label_parts = [city_name]
+    if matched_state_name:
+        label_parts.append(matched_state_name)
+    label_parts.append(country_iso3)
+    return ResolvedBoundary(
+        country_iso3=country_iso3,
+        admin_level="CITY",
+        state_name=matched_state_name,
+        district_name=None,
+        city_name=city_name,
+        label=", ".join(label_parts),
+        geometry=geometry,
+        area_sq_km=float(area_sq_km),
+    )
+
+
 def _resolve_city_boundary(
     *,
     cache_dir: Path,
@@ -256,8 +321,11 @@ def _resolve_city_boundary(
             if not city_matches.empty:
                 break
         if city_matches.empty:
-            raise ValueError(
-                f"Could not find a city boundary matching {city_name!r}."
+            return _resolve_city_boundary_from_adm2(
+                cache_dir=cache_dir,
+                country_iso3=country_iso3,
+                city_name=city_name,
+                state_name=state_name,
             )
 
         _write_geojson(city_matches, cache_path)
