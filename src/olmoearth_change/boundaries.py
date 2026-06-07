@@ -17,6 +17,7 @@ GEOBOUNDARIES_ENDPOINT = (
 )
 WARD_ADMIN_LEVELS = {"9", "10", "11"}
 WARD_NAME_HINTS = ("ward", "division", "circle")
+CITY_ADDRESS_TYPES = {"city", "town", "municipality", "administrative", "village"}
 
 
 @dataclass(frozen=True)
@@ -163,44 +164,50 @@ def _city_candidate_label(row: pd.Series, fallback: str) -> str:
     return _row_text(row, ("display_name", "name")) or fallback
 
 
-def _resolve_city_boundary(
-    *,
-    cache_dir: Path,
-    country_iso3: str,
+def _write_geojson(gdf: gpd.GeoDataFrame, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame = gdf
+    if frame.crs is not None and str(frame.crs).upper() != "EPSG:4326":
+        frame = frame.to_crs("EPSG:4326")
+    path.write_text(frame.to_json(indent=2))
+
+
+def _filter_city_matches(
+    city_matches: gpd.GeoDataFrame,
     city_name: str,
-    state_name: str | None,
-) -> ResolvedBoundary:
-    cache_path = _city_cache_path(cache_dir, country_iso3, state_name, city_name)
-    if cache_path.exists():
-        city_matches = gpd.read_file(cache_path).to_crs("EPSG:4326")
-    else:
-        ox.settings.use_cache = True
-        ox.settings.cache_folder = str((cache_dir / "osmnx").resolve())
-        city_matches = gpd.GeoDataFrame()
-        for query in _city_queries(
-            country_iso3=country_iso3,
-            state_name=state_name,
-            city_name=city_name,
-        ):
-            try:
-                city_matches = ox.geocode_to_gdf(query, which_result=None)
-            except Exception:
-                continue
-            if not city_matches.empty:
-                break
-        if city_matches.empty:
-            raise ValueError(f"Could not find a city boundary matching {city_name!r}.")
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        city_matches.to_file(cache_path, driver="GeoJSON")
+) -> gpd.GeoDataFrame:
+    if city_matches.empty:
+        return city_matches
 
     city_matches = city_matches.reset_index(drop=True).to_crs("EPSG:4326")
     city_matches = city_matches[
         city_matches.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
     ].copy()
     if city_matches.empty:
-        raise ValueError(
-            f"City boundary for {city_name!r} did not include a polygon geometry."
+        return city_matches
+
+    city_like = pd.Series(False, index=city_matches.index)
+    if "addresstype" in city_matches.columns:
+        city_like |= (
+            city_matches["addresstype"]
+            .astype("string")
+            .str.lower()
+            .isin(CITY_ADDRESS_TYPES)
+            .fillna(False)
         )
+
+    if {"class", "type"}.issubset(city_matches.columns):
+        city_like |= (
+            city_matches["class"].astype("string").str.lower().eq("boundary")
+            & city_matches["type"].astype("string").str.lower().eq("administrative")
+        ).fillna(False)
+
+    if "place_rank" in city_matches.columns:
+        city_like &= pd.to_numeric(city_matches["place_rank"], errors="coerce").le(16)
+
+    city_matches = city_matches[city_like].copy()
+    if city_matches.empty:
+        return city_matches
 
     normalized_city = _normalize_name(city_name)
     city_matches["__norm_name"] = city_matches.apply(
@@ -209,19 +216,51 @@ def _resolve_city_boundary(
         ),
         axis=1,
     )
+
     exact = city_matches[city_matches["__norm_name"] == normalized_city]
     if not exact.empty:
-        city_matches = exact
+        city_matches = exact.copy()
 
-    if "addresstype" in city_matches.columns:
-        preferred = city_matches[
-            city_matches["addresstype"]
-            .astype("string")
-            .str.lower()
-            .isin({"city", "town", "municipality", "administrative"})
-        ]
-        if not preferred.empty:
-            city_matches = preferred
+    return city_matches
+
+
+def _resolve_city_boundary(
+    *,
+    cache_dir: Path,
+    country_iso3: str,
+    city_name: str,
+    state_name: str | None,
+) -> ResolvedBoundary:
+    cache_path = _city_cache_path(cache_dir, country_iso3, state_name, city_name)
+    city_matches = gpd.GeoDataFrame()
+    if cache_path.exists():
+        city_matches = _filter_city_matches(
+            gpd.read_file(cache_path).to_crs("EPSG:4326"),
+            city_name,
+        )
+
+    if city_matches.empty:
+        ox.settings.use_cache = True
+        ox.settings.cache_folder = str((cache_dir / "osmnx").resolve())
+        for query in _city_queries(
+            country_iso3=country_iso3,
+            state_name=state_name,
+            city_name=city_name,
+        ):
+            try:
+                query_matches = ox.geocode_to_gdf(query, which_result=None)
+            except Exception:
+                continue
+
+            city_matches = _filter_city_matches(query_matches, city_name)
+            if not city_matches.empty:
+                break
+        if city_matches.empty:
+            raise ValueError(
+                f"Could not find a city boundary matching {city_name!r}."
+            )
+
+        _write_geojson(city_matches, cache_path)
 
     if len(city_matches) > 1:
         candidate_names = ", ".join(
@@ -395,7 +434,7 @@ def resolve_ward_boundaries(
         )
         return wards
 
-    wards.to_file(cache_path, driver="GeoJSON")
+    _write_geojson(wards, cache_path)
     return wards
 
 
