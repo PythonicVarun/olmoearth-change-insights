@@ -1,0 +1,163 @@
+{
+  "metadata": {
+    "label": "New Delhi, Delhi, IND",
+    "country_iso3": "IND",
+    "admin_level": "CITY",
+    "state_name": "Delhi",
+    "district_name": null,
+    "city_name": "New Delhi",
+    "area_sq_km": 161.34167581622972,
+    "generated_at_utc": "2026-06-07",
+    "workers_note": "workers>1 was requested with CUDA; using batched tile processing.",
+    "tile_display_cache_hits": 0,
+    "tile_display_cache_misses": 86,
+    "tile_display_cache_hit_rate": 0.0,
+    "coverage_sq_km": 161.342,
+    "coverage_percent": 100.0,
+    "tile_count": 43,
+    "partial_coverage": false,
+    "ward_overlay_available": true,
+    "ward_count": 74
+  },
+  "config": {
+    "base_year": 2025,
+    "periods": [
+      10
+    ],
+    "model_name": "base",
+    "tile_size_m": 2560,
+    "workers": 4,
+    "include_population": false,
+    "include_pollution": false,
+    "include_historical_imagery": false,
+    "display_cell_size_m": 160
+  },
+  "scene_counts": {
+    "2015": 43,
+    "2025": 3429
+  },
+  "feature_count": 6607,
+  "periods": {
+    "10y": {
+      "metrics": {
+        "embedding_change_median": 0.009744,
+        "embedding_change_p95": 0.020482,
+        "vegetation_delta_mean": -0.082194,
+        "water_delta_mean": -0.056669,
+        "urban_delta_mean": 0.115994,
+        "bare_soil_delta_mean": 0.100671
+      },
+      "story_counts": {
+        "Urban expansion replacing vegetation": 2920,
+        "Water gain or inundation": 1498,
+        "Water retreat or drying": 1311,
+        "Mixed land-cover change": 742,
+        "Greening or crop intensification": 87,
+        "Bare-soil or industrial expansion": 49
+      },
+      "hotspots": [
+        {
+          "latitude": 28.557869,
+          "longitude": 77.095255,
+          "embedding_change": 0.056176,
+          "vegetation_delta": -0.287997,
+          "water_delta": 0.235689,
+          "urban_delta": 0.037041,
+          "bare_soil_delta": 0.044356,
+          "pollution_delta": null,
+          "story": "Water gain or inundation",
+          "tile_id": "tile_014"
+        },
+        {
+          "latitude": 28.556426,
+          "longitude": 77.095226,
+          "embedding_change": 0.05369,
+          "vegetation_delta": -0.304759,
+          "water_delta": 0.05913,
+          "urban_delta": 0.230807,
+          "bare_soil_delta": 0.201943,
+          "pollution_delta": null,
+          "story": "Urban expansion replacing vegetation",
+          "tile_id": "tile_014"
+        },
+        {
+          "latitude": 28.500525,
+          "longitude": 77.107692,
+          "embedding_change": 0.053388,
+          "vegetation_delta": -0.145314,
+          "water_delta": 0.228167,
+          "urban_delta": -0.01245,
+          "bare_soil_delta": -0.07819,
+          "pollution_delta": null,
+          "story": "Water gain or inundation",
+          "tile_id": "tile_001"
+        },
+        {
+          "latitude": 28.572274,
+          "longitude": 77.188758,
+          "embedding_change": 0.047672,
+          "vegetation_delta": -0.313607,
+          "water_delta": -0.273806,
+          "urban_delta": 0.416539,
+          "bare_soil_delta": 0.361728,
+          "pollution_delta": null,
+          "story": "Urban expansion replacing vegetation",
+          "tile_id": "tile_018"
+        },
+        {
+          "latitude": 28.499502,
+          "longitude": 77.134957,
+          "embedding_change": 0.046809,
+          "vegetation_delta": -0.327171,
+          "water_delta": 0.37781,
+          "urban_delta": 0.040503,
+          "bare_soil_delta": -0.038276,
+          "pollution_delta": null,
+          "story": "Water gain or inundation",
+          "tile_id": "tile_002"
+        },
+        {
+          "latitude": 28.544036,
+          "longitude": 77.148935,
+          "embedding_change": 0.04349,
+          "vegetation_delta": -0.461581,
+          "water_delta": 0.102117,
+          "urban_delta": 0.329807,
+          "bare_soil_delta": 0.385438,
+          "pollution_delta": null,
+          "story": "Urban expansion replacing vegetation",
+          "tile_id": "tile_010"
+        },
+        {
+          "latitude": 28.567617,
+          "longitude": 77.118343,
+          "embedding_change": 0.043062,
+          "vegetation_delta": -0.009144,
+          "water_delta": -0.012154,
+          "urban_delta": 0.038425,
+          "bare_soil_delta": -0.000168,
+          "pollution_delta": null,
+          "story": "Mixed land-cover change",
+          "tile_id": "tile_015"
+        },
+        {
+          "latitude": 28.556299,
+          "longitude": 77.103399,
+          "embedding_change": 0.041791,
+          "vegetation_delta": 0.034644,
+          "water_delta": -0.16683,
+          "urban_delta": 0.122397,
+          "bare_soil_delta": 0.055762,
+          "pollution_delta": null,
+          "story": "Water retreat or drying",
+          "tile_id": "tile_015"
+        }
+      ]
+    }
+  },
+  "historical_imagery": {
+    "available": false,
+    "available_years": [],
+    "years": {}
+  }
+}
