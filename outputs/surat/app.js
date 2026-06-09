@@ -141,7 +141,7 @@ function parseUrlState(params) {
         metric: metricOptions.some((option) => option.key === metric) ? metric : null,
         unit: ["cells", "wards"].includes(unit) ? unit : null,
         period: params.get("period"),
-        opacity: parseFiniteNumber(params.get("opacity"), { min: 0.15, max: 0.95 }),
+        opacity: parseFiniteNumber(params.get("opacity"), { min: 0.00, max: 0.95 }),
         historicalMode: normalizeHistoricalMode(params.get("historical")),
         historicalSnapshotDate: normalizeSnapshotDateKey(params.get("historicalDate")),
         speed: normalizePlaybackSpeedMs(params.get("speed")),
