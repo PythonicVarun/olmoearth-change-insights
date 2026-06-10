@@ -488,6 +488,124 @@ const INSIGHTS = [
             { label: "Green Tribunal Report", url: "https://www.greentribunal.gov.in/sites/default/files/news_updates/Affidavit%20filed%20by%20UD%20&%20Municipal%20affairs,%20Govt.%20of%20WB%20-%20Tribunal%20On%20its%20Own%20Motion%20Vs.%20State%20of%20West%20Bengal%20&%20Ors.%20%20in%20OA%2014%20of%202017%20(EZ).pdf" },
         ],
     },
+    {
+        title: "Concrete Replaces Old Lagoons for Ghatkopar's 337-MLD Mega Sewage Plant",
+        location: "Mumbai",
+        content:
+            "Satellite imagery over the Ghatkopar wastewater zone reveals a drastic spatial transformation where sprawling, algae-covered aerated lagoons and surrounding coastal buffers have been entirely drained and bulldozed. What spatial algorithms flag as a severe plunge in the vegetation index is actually the massive concrete footprint of the Brihanmumbai Municipal Corporation's (BMC) new 337-MLD Ghatkopar Waste Water Treatment Facility. Being constructed as a crucial part of the Rs 17,000-crore Mumbai Sewage Disposal Project (MSDP) Stage II, this modern tertiary treatment plant is designed to treat sewage before discharge and will soon supply millions of liters of recycled non-potable water to nearby BPCL and HPCL oil refineries. While this mega-project is a highly necessary step to revive Mumbai's coastal health and reduce marine pollution, securing the city's sanitation future has come at the direct and visible cost of replacing its existing landscape with heavy concrete infrastructure.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/mumbai/ghatkopar_stp/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=19.07986&lng=72.93420&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/mumbai/ghatkopar_stp/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=19.07986&lng=72.93420&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/city/mumbai/bmc-plans-pipeline-to-supply-treated-waste-water-to-hpcl-bpcl/articleshow/122843760.cms" },
+        ],
+    },
+    {
+        title: "87 Acres of Mumbai's Mangroves Erased for Rs 5,688-Crore Sewage Plant",
+        location: "Mumbai",
+        content:
+            "Satellite imagery over Malad Creek reveals a devastating ecological cost to Mumbai’s infrastructure modernization: the complete obliteration of 35 hectares (87 acres) of protected mangrove forest. What spatial algorithms flag as a severe plunge in the coastal vegetation index is the sprawling construction site of the Brihanmumbai Municipal Corporation's new Malad Waste Water Treatment Facility, contracted to NCC Limited. Built under the Mumbai Sewage Disposal Project Stage II, this Rs 5,688-crore mega-plant is urgently required to treat the millions of liters of raw sewage currently choking the creek every day. However, securing the city's sanitation future has required a highly controversial, court-approved sacrifice of one of its most vital natural flood buffers, permanently exchanging a massive green lung for heavy concrete infrastructure.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/mumbai/malad_stp/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=19.17843&lng=72.82468&zoom=16.92&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/mumbai/malad_stp/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=water_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=19.17843&lng=72.82468&zoom=16.92&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/city/mumbai/87-acres-of-mangroves-to-be-cut-for-sewage-plant/articleshow/58937315.cms" },
+            { label: "MCGM Order", url: "https://www.mcgm.gov.in/irj/go/km/docs/documents/MCGM%20Department%20List/Mumbai%20Sewerage%20Disposal%20Project/Docs/35.00%20Ha%20Land%20Diversion%20order.pdf" },
+        ],
+    },
+    {
+        title: "Mumbai's Protected Mangroves Devoured by Illegal Slum Sprawl",
+        location: "Mumbai",
+        content:
+            "Satellite imagery over Daravali Village in Malad reveals a devastating, unchecked ecological crime: the systematic clearing of dense, protected coastal mangroves to make way for massive, unauthorized slum encroachments. What the spatial algorithms flag as a severe \"urban expansion replacing vegetation\" is actually the illegal occupation of highly sensitive Coastal Regulation Zone (CRZ) areas. Despite repeated complaints to the National Green Tribunal (NGT) and ongoing efforts by the state's Mangrove Cell to fence off vulnerable coastlines, these vital natural flood barriers are continuously being bulldozed to expand makeshift settlements. This dramatic satellite contrast exposes the harsh, ground-level reality of Mumbai's losing battle to protect its remaining green buffers against rampant, illegal urbanization.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/mumbai/daravali_slums/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=urban_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=19.16107&lng=72.80662&zoom=17.37&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/mumbai/daravali_slums/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/mumbai/?basemap=osm&metric=urban_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=19.16107&lng=72.80662&zoom=17.37&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Green Tribunal Report", url: "https://www.greentribunal.gov.in/sites/default/files/all_documents/Report%20in%20OA%20No.%20586%20of%202019.pdf" },
+        ],
+    },
+    {
+        title: "Concrete for a Cause: How Delhi Airport's Massive Taxiway is Saving the Air",
+        location: "Delhi",
+        content:
+            "While satellite imagery clearly registers a heavy loss of vegetation across the Indira Gandhi International (IGI) Airport, this spatial reality masks one of India's most significant environmental infrastructure upgrades. The sprawling, 2.1-kilometer concrete structure bisecting the airfield is the Eastern Cross Taxiway (ECT)—the first elevated dual taxiway in the country. Before this Rs-crore mega-project was commissioned, an aircraft landing on the outer runways had to taxi for roughly 9 kilometers to reach Terminal 1. By physically bridging the Northern and Southern airfields, the ECT slashes that taxiing distance down to just 2 kilometers. This dramatic reduction in tarmac time means less jet fuel burned while idling, translating to an estimated reduction of 55,000 tonnes of CO2 emissions annually. To put that into perspective, the carbon savings generated by this single expanse of concrete is equivalent to the environmental work of planting roughly 1.5 million trees. While the immediate visual impact is a loss of scrubland, the ECT is a critical pillar in DIAL's aggressive roadmap to transform IGI into a \"Net Zero Carbon Emission Airport\" by the end of the decade.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/delhi/igi_airport_ect/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=osm&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=28.54746&lng=77.11272&zoom=16.66&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/delhi/igi_airport_ect/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=osm&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=28.54746&lng=77.11272&zoom=16.66&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Economic Times", url: "https://travel.economictimes.indiatimes.com/news/aviation/domestic/indias-first-elevated-dual-taxiways-to-become-operational-soon-at-delhi-airport/101573731" },
+            { label: "GMR Group", url: "https://www.gmrgems.com/blogs/eastern-cross-taxiways" },
+        ],
+    },
+    {
+        title: "Paving Fields to Clear the Air: The Unexpected Environmental Math of UER-II",
+        location: "Delhi",
+        content:
+            "While satellite imagery paints a stark picture of lush agricultural fields being permanently erased by concrete, the sprawling Urban Extension Road II (UER-II) is actually engineered to be a massive environmental relief valve for Delhi. Conceived as the capital’s third ring road, this 75-kilometer, access-controlled expressway is specifically designed to intercept heavy commercial trucks and non-destined traffic, completely diverting them away from the city's highly congested and polluted inner core. By drastically cutting travel times—such as reducing the commute from the Singhu border to the IGI Airport from over two hours down to just 40 minutes—the highway prevents thousands of tonnes of vehicular emissions from idling engines every single day. Furthermore, the greenest aspect of this \"greenfield\" highway is buried directly beneath its surface. In a major push for ecological waste management, the National Highways Authority of India (NHAI) actively utilized 2 million tonnes of processed plastic garbage sourced directly from the infamous Ghazipur landfill to construct the roadbed. While securing Delhi's transit future required the undeniable sacrifice of western farmland, the UER-II trades that local acreage for a wider, systemic victory: simultaneously cleaning up the city's toxic trash mountains while allowing its suffocating urban center to finally breathe.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/delhi/uer_ii/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=osm&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=28.56479&lng=77.02035&zoom=16.92&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/delhi/uer_ii/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=osm&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=28.56479&lng=77.02035&zoom=16.92&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "DPCC Report", url: "https://www.dpcc.delhigovt.nic.in/uploads/eia/18e4b24d6daf4d344841fcb2bd4bf949.pdf" },
+            { label: "Wikipedia", url: "https://en.wikipedia.org/wiki/Urban_Extension_Road-II" },
+        ],
+    },
+    {
+        title: "A Platinum-Rated Trade-Off: The Green Mechanics Behind India's New Parliament",
+        location: "Delhi",
+        content:
+            "While satellite imagery clearly shows a loss of vegetation to accommodate India's New Parliament Building, the structure's operational design attempts to offset this physical footprint. The new 64,500-square-meter triangular complex is officially a Platinum-rated green building, holding a GRIHA 5-star certification. The facility is engineered to cut power consumption by over 50% compared to conventional systems, relying on extensive LED migration, daylight integration, and motion occupancy sensors. Beyond electricity, the infrastructure is built to manage its own environmental impact. It features comprehensive rainwater harvesting and utilizes dedicated sewage treatment plants to treat and recycle wastewater. Even during the heavy construction phase, the site employed mist sprayers, smog towers, and noise barriers to actively suppress localized air and sound pollution. The visual loss of the previous green buffer is undeniable. However, the long-term metrics of this modern, divyang-friendly facility demonstrate a calculated, mathematical shift toward sustainable and energy-efficient civic infrastructure.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/delhi/new_parliament/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=28.61705&lng=77.21040&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/delhi/new_parliament/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/delhi/?basemap=esri_imagery&metric=vegetation_delta&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=28.61705&lng=77.21040&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "Economic Times", url: "https://economictimes.indiatimes.com/news/india/energy-efficiency-focus-in-new-parliament-building-lighting-will-save-power-by-over-50/articleshow/103758264.cms?from=mdr" },
+            { label: "Times of India", url: "https://timesofindia.indiatimes.com/india/new-parliament-building-has-inbuilt-processes-to-make-it-energy-efficient/photostory/100547090.cms" },
+        ],
+    },
 ];
 
 function escapeHtml(s) {
