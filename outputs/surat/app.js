@@ -18,6 +18,34 @@ const metricColorStops = {
     population_delta: ["#3f6791", "#f4efe5", "#bc5a2e"],
 };
 
+const cellRenderModeOptions = [
+    {
+        key: "variation",
+        label: "Per-Cell Variation",
+        helperLabel: "Sharp cell-by-cell differences.",
+    },
+    {
+        key: "aggregate",
+        label: "Smeared Aggregate",
+        helperLabel: "Upscaled blended overview.",
+    },
+];
+
+function cellFeatureId(properties) {
+    if (!properties) {
+        return null;
+    }
+
+    const tileId = properties.tile_id;
+    const row = properties.row;
+    const col = properties.col;
+    if (tileId === undefined || row === undefined || col === undefined) {
+        return null;
+    }
+
+    return `${tileId}:${row}:${col}`;
+}
+
 const metricSummaryDefinitions = {
     embedding_change: {
         summaryKey: "embedding_change_median",
@@ -131,6 +159,10 @@ function normalizeSnapshotDateKey(value) {
     return value;
 }
 
+function normalizeCellRenderMode(value) {
+    return cellRenderModeOptions.some((option) => option.key === value) ? value : null;
+}
+
 function parseUrlState(params) {
     const basemap = params.get("basemap");
     const metric = params.get("metric");
@@ -139,6 +171,7 @@ function parseUrlState(params) {
     return {
         basemap: basemapDefinitions[basemap] ? basemap : null,
         metric: metricOptions.some((option) => option.key === metric) ? metric : null,
+        renderMode: normalizeCellRenderMode(params.get("renderMode")),
         unit: ["cells", "wards"].includes(unit) ? unit : null,
         period: params.get("period"),
         opacity: parseFiniteNumber(params.get("opacity"), { min: 0.00, max: 0.95 }),
@@ -188,6 +221,8 @@ const fallbackLocationLabel =
     humanizeLocationSlug(inferLocationSlug()) || "Location";
 
 const map = L.map("map", { zoomControl: true, preferCanvas: true, zoomSnap: 0, zoomDelta: 0.5 });
+map.createPane("cellsPane");
+map.getPane("cellsPane").style.zIndex = 350;
 map.createPane("historicalPane");
 map.getPane("historicalPane").style.zIndex = 250;
 map.getPane("historicalPane").style.pointerEvents = "none";
@@ -211,11 +246,16 @@ const state = {
     playbackSpeedMs: 1200,
     basemapMode: initialBasemapMode,
     preferredBasemapMode: initialBasemapMode,
+    cellRenderMode: initialUrlState.renderMode ?? "variation",
     urlSyncEnabled: false,
     boundsByProperty: {
         cells: {},
         wards: {},
     },
+    pmtilesHoverFeatureId: null,
+    pmtilesHoverLatLng: null,
+    pmtilesHoverFrameId: null,
+    pmtilesTooltip: null,
     periods: [],
 };
 
@@ -249,6 +289,7 @@ function syncUrlState() {
 
     setUrlParam(params, "basemap", state.preferredBasemapMode);
     setUrlParam(params, "metric", currentMetricKey());
+    setUrlParam(params, "renderMode", currentCellRenderMode());
     setUrlParam(params, "unit", currentUnitKey());
     setUrlParam(params, "period", currentPeriodKey());
     setUrlParam(params, "opacity", Number(document.getElementById("opacity").value).toFixed(2));
@@ -279,6 +320,7 @@ function applyInitialControlState() {
     const metricSelect = document.getElementById("metric");
     const basemapSelect = document.getElementById("basemap");
     const historicalSelect = document.getElementById("historicalImagery");
+    const renderModeSelect = document.getElementById("renderMode");
     const periodInput = document.getElementById("period");
     const opacityInput = document.getElementById("opacity");
     const speedSelect = document.getElementById("historicalSpeed");
@@ -301,6 +343,8 @@ function applyInitialControlState() {
     ) {
         metricSelect.value = initialUrlState.metric;
     }
+
+    renderModeSelect.value = state.cellRenderMode;
 
     if (initialUrlState.opacity !== null) {
         opacityInput.value = String(initialUrlState.opacity);
@@ -452,6 +496,58 @@ async function fetchJsonWithProgress(url, { optional = false, onProgress } = {})
     }
 }
 
+async function fetchBinaryWithProgress(url, { optional = false, onProgress } = {}) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (optional) {
+                return null;
+            }
+            throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
+        }
+
+        if (!response.body) {
+            const buffer = await response.arrayBuffer();
+            onProgress?.({ loadedBytes: buffer.byteLength, totalBytes: buffer.byteLength, done: true });
+            return buffer;
+        }
+
+        const totalBytes = Number(response.headers.get("content-length")) || null;
+        const reader = response.body.getReader();
+        let loadedBytes = 0;
+        const chunks = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            loadedBytes += value.byteLength;
+            chunks.push(value);
+            onProgress?.({ loadedBytes, totalBytes, done: false });
+        }
+
+        onProgress?.({
+            loadedBytes,
+            totalBytes: totalBytes ?? loadedBytes,
+            done: true,
+        });
+
+        const combined = new Uint8Array(loadedBytes);
+        let offset = 0;
+        for (const chunk of chunks) {
+            combined.set(chunk, offset);
+            offset += chunk.byteLength;
+        }
+        return combined.buffer;
+    } catch (error) {
+        if (optional) {
+            return null;
+        }
+        throw error;
+    }
+}
+
 function interpolateColor(colors, t) {
     const clamp = Math.max(0, Math.min(1, t));
     const [c1, c2, c3] = colors.map(hexToRgb);
@@ -516,8 +612,32 @@ function currentUnitKey() {
     return document.getElementById("unit").value || "cells";
 }
 
+function currentCellRenderMode() {
+    return state.cellRenderMode;
+}
+
+function currentCellOverlay() {
+    const overlay = state.overlays.cells;
+    if (!overlay) {
+        return null;
+    }
+
+    return overlay[currentCellRenderMode()] ?? overlay.variation ?? overlay.aggregate ?? null;
+}
+
+function cellPmtilesLayers() {
+    const overlay = state.overlays.cells;
+    if (!overlay) {
+        return [];
+    }
+
+    return [overlay.variation?.pmtLayer, overlay.aggregate?.pmtLayer].filter(Boolean);
+}
+
 function activeOverlay() {
-    return state.overlays[currentUnitKey()] ?? state.overlays.cells;
+    return currentUnitKey() === "cells"
+        ? currentCellOverlay()
+        : state.overlays[currentUnitKey()] ?? state.overlays.cells;
 }
 
 function activeBoundsByProperty() {
@@ -536,6 +656,7 @@ function computeFeatureStyle(feature, hovered = false) {
     if (value === null || value === undefined || Number.isNaN(value)) {
         return {
             color: isWard ? "rgba(23,34,45,0.12)" : "transparent",
+            fill: false,
             fillColor: "transparent",
             fillOpacity: 0,
             weight: isWard ? 0.6 : 0,
@@ -560,6 +681,7 @@ function computeFeatureStyle(feature, hovered = false) {
             : isWard
               ? "rgba(23,34,45,0.22)"
               : "rgba(23,34,45,0)",
+        fill: true,
         weight: hovered ? (isWard ? 1.5 : 0.9) : isWard ? 0.7 : 0,
         fillColor: interpolateColor(metricColorStops[metric], t),
         fillOpacity: opacity,
@@ -790,7 +912,7 @@ function buildSubtitle(summary) {
     return (
         `${baseText} Basemap is off because this page is running from ` +
         `\`file://\` or was opened with \`?basemap=none\`. ` +
-        `Serve the folder over http(s), like \`python -m http.server\`, to use remote basemaps with a valid Referer.`
+        `Serve the folder over http(s) with HTTP byte-range support to use remote basemaps and PMTiles overlays correctly.`
     );
 }
 
@@ -1386,6 +1508,7 @@ function updateDashboardChrome() {
 
     updateLocationChrome();
     populateHistoricalImagerySelect();
+    updateCellRenderModeControlState();
     updateTopbarMeta();
     updateFocusPanel();
     updateTrendChart();
@@ -1489,6 +1612,292 @@ function handleFeatureMouseOut(event) {
     }
 }
 
+function transformedPmtilesFeatureGeometry(sourceGeometry, featureType, bounds, scale) {
+    if (!Array.isArray(sourceGeometry) || !sourceGeometry.length) {
+        return [];
+    }
+
+    if (featureType === 1) {
+        return sourceGeometry
+            .map((featurePart) => featurePart?.[0] ?? null)
+            .filter((point) => point && bounds.contains(point))
+            .map((point) => [
+                L.point(
+                    (point.x - bounds.min.x) / scale,
+                    (point.y - bounds.min.y) / scale,
+                ),
+            ]);
+    }
+
+    return sourceGeometry
+        .filter((featurePart) => {
+            const partBounds = L.bounds(featurePart.map((point) => L.point(point.x, point.y)));
+            return bounds.overlaps(partBounds);
+        })
+        .map((featurePart) =>
+            featurePart.map((point) =>
+                L.point(
+                    (point.x - bounds.min.x) / scale,
+                    (point.y - bounds.min.y) / scale,
+                ),
+            ),
+        );
+}
+
+function autoscaledPmtilesBounds(layerExtent, coords, maxCoords) {
+    const zoomScale = 2 ** (coords.z - maxCoords.z);
+    const segmentSize = layerExtent / zoomScale;
+    const offsetX = (coords.x - maxCoords.x * zoomScale) * segmentSize;
+    const offsetY = (coords.y - maxCoords.y * zoomScale) * segmentSize;
+
+    return {
+        bounds: L.bounds(
+            L.point(offsetX, offsetY),
+            L.point(offsetX + segmentSize, offsetY + segmentSize),
+        ),
+        scale: segmentSize / layerExtent,
+    };
+}
+
+function autoscaledPmtilesVectorTile(vectorTile, coords, maxCoords) {
+    if (!vectorTile?.layers) {
+        return {};
+    }
+
+    const transformedLayers = {};
+    for (const layerName in vectorTile.layers) {
+        const sourceLayer = vectorTile.layers[layerName];
+        const { bounds, scale } = autoscaledPmtilesBounds(sourceLayer.extent, coords, maxCoords);
+        const features = (sourceLayer.features || [])
+            .map((sourceFeature) => {
+                const geometry = transformedPmtilesFeatureGeometry(
+                    sourceFeature.geometry,
+                    sourceFeature.type,
+                    bounds,
+                    scale,
+                );
+                if (!geometry.length) {
+                    return null;
+                }
+
+                return {
+                    geometry,
+                    properties: sourceFeature.properties,
+                    type: sourceFeature.type,
+                };
+            })
+            .filter(Boolean);
+
+        transformedLayers[layerName] = {
+            extent: sourceLayer.extent,
+            features,
+            length: features.length,
+        };
+    }
+
+    return { layers: transformedLayers };
+}
+
+function configurePmtilesAutoscale(pmtLayer) {
+    const originalGetVectorTilePromise = pmtLayer._getVectorTilePromise.bind(pmtLayer);
+    pmtLayer.options.autoScale = false;
+    pmtLayer._getVectorTilePromise = function(coords, tileBounds, signal) {
+        if (!this._map || coords.z <= this.maxZoom) {
+            return originalGetVectorTilePromise(coords, tileBounds, signal);
+        }
+
+        const pixelPoint = this._map.project(tileBounds.getCenter(), this.maxZoom).floor();
+        const maxCoords = pixelPoint.unscaleBy(this.getTileSize()).floor();
+        maxCoords.z = this.maxZoom;
+
+        const maxTileBounds = this._tileCoordsToBounds(maxCoords);
+        return originalGetVectorTilePromise(maxCoords, maxTileBounds, signal).then((vectorTile) =>
+            autoscaledPmtilesVectorTile(vectorTile, coords, maxCoords),
+        );
+    };
+}
+
+async function createPmtilesCellLayer(overlayUrl, { autoscaleMode } = {}) {
+    const useVariationAutoscale = autoscaleMode === "variation";
+    const pmtLayer = L.pmtilesLayer(overlayUrl, {
+        rendererFactory: L.canvas.tile,
+        interactive: true,
+        autoScale: useVariationAutoscale ? false : "leaflet",
+        pane: "cellsPane",
+        getFeatureId: (feat) => cellFeatureId(feat.properties ?? feat),
+        style: (properties) => computeFeatureStyle({ properties }, false),
+        vectorTileLayerStyles: {},
+    });
+
+    if (useVariationAutoscale) {
+        configurePmtilesAutoscale(pmtLayer);
+    }
+
+    const pmt = pmtLayer.pmt;
+    const [header, metadata] = await Promise.all([pmt.getHeader(), pmt.getMetadata()]);
+    const layerName = metadata?.tilestats?.layers?.[0]?.layer || "overlay";
+
+    pmtLayer.options.vectorTileLayerStyles[layerName] = (properties) =>
+        computeFeatureStyle({ properties }, false);
+    pmtLayer.getBounds = () => {
+        return L.latLngBounds([header.minLat, header.minLon], [header.maxLat, header.maxLon]);
+    };
+
+    return { pmtLayer, header, metadata };
+}
+
+function activePmtilesLayer() {
+    const cellOverlay = currentCellOverlay()?.pmtLayer;
+    if (!cellOverlay || state.geoLayer !== cellOverlay || currentUnitKey() !== "cells") {
+        return null;
+    }
+
+    return cellOverlay;
+}
+
+function tileCoordsFromKey(tileKey) {
+    if (typeof tileKey !== "string") {
+        return null;
+    }
+
+    const [x, y, z] = tileKey.split(":").map((value) => Number.parseInt(value, 10));
+    if ([x, y, z].some((value) => Number.isNaN(value))) {
+        return null;
+    }
+
+    return { x, y, z };
+}
+
+function localPointForTileLatLng(latlng, tileCoords) {
+    const projected = map.project(latlng, tileCoords.z);
+    return projected.subtract(L.point(tileCoords.x * 256, tileCoords.y * 256));
+}
+
+function clearPmtilesHover() {
+    if (state.pmtilesHoverFrameId !== null) {
+        window.cancelAnimationFrame(state.pmtilesHoverFrameId);
+        state.pmtilesHoverFrameId = null;
+    }
+
+    if (state.pmtilesHoverFeatureId !== null) {
+        for (const layer of cellPmtilesLayers()) {
+            layer.resetFeatureStyle(state.pmtilesHoverFeatureId);
+        }
+    }
+
+    state.pmtilesHoverFeatureId = null;
+    state.pmtilesHoverLatLng = null;
+    map.getContainer().style.cursor = "";
+    state.pmtilesTooltip?.remove();
+}
+
+function findPmtilesFeatureAtLatLng(latlng) {
+    const layer = activePmtilesLayer();
+    if (!layer) {
+        return null;
+    }
+
+    const vectorTiles = Object.entries(layer._vectorTiles || {});
+    for (const [tileKey, renderer] of vectorTiles) {
+        const tileCoords = tileCoordsFromKey(tileKey);
+        if (!tileCoords) {
+            continue;
+        }
+
+        const localPoint = localPointForTileLatLng(latlng, tileCoords);
+        const renderedLayers = Object.values(renderer._layers || {});
+        for (const renderedLayer of renderedLayers) {
+            if (!renderedLayer.properties || !renderedLayer._containsPoint) {
+                continue;
+            }
+            if (renderedLayer._pxBounds && !renderedLayer._pxBounds.contains(localPoint)) {
+                continue;
+            }
+            if (!renderedLayer._containsPoint(localPoint)) {
+                continue;
+            }
+
+            return {
+                properties: renderedLayer.properties,
+                featureId: cellFeatureId(renderedLayer.properties),
+            };
+        }
+    }
+
+    return null;
+}
+
+function applyPmtilesHover() {
+    state.pmtilesHoverFrameId = null;
+
+    const latlng = state.pmtilesHoverLatLng;
+    if (!latlng) {
+        clearPmtilesHover();
+        return;
+    }
+
+    const layer = activePmtilesLayer();
+    if (!layer) {
+        clearPmtilesHover();
+        return;
+    }
+
+    const hoveredFeature = findPmtilesFeatureAtLatLng(latlng);
+    if (!hoveredFeature) {
+        clearPmtilesHover();
+        return;
+    }
+
+    if (
+        state.pmtilesHoverFeatureId !== null &&
+        state.pmtilesHoverFeatureId !== hoveredFeature.featureId
+    ) {
+        layer.resetFeatureStyle(state.pmtilesHoverFeatureId);
+    }
+
+    if (
+        hoveredFeature.featureId !== null &&
+        state.pmtilesHoverFeatureId !== hoveredFeature.featureId
+    ) {
+        layer.setFeatureStyle(
+            hoveredFeature.featureId,
+            computeFeatureStyle({ properties: hoveredFeature.properties }, true),
+        );
+    }
+
+    state.pmtilesHoverFeatureId = hoveredFeature.featureId;
+    map.getContainer().style.cursor = "pointer";
+    if (!state.pmtilesTooltip) {
+        state.pmtilesTooltip = L.tooltip({
+            sticky: true,
+            offset: [0, -5],
+        });
+    }
+    state.pmtilesTooltip.setContent(buildTooltip(hoveredFeature.properties))
+        .setLatLng(latlng)
+        .addTo(map);
+}
+
+function schedulePmtilesHover(latlng) {
+    state.pmtilesHoverLatLng = latlng;
+    if (state.pmtilesHoverFrameId !== null) {
+        return;
+    }
+
+    state.pmtilesHoverFrameId = window.requestAnimationFrame(() => {
+        applyPmtilesHover();
+    });
+}
+
+function handleMapMouseMove(event) {
+    if (!activePmtilesLayer()) {
+        clearPmtilesHover();
+        return;
+    }
+
+    schedulePmtilesHover(event.latlng);
+}
+
 function applyBasemap(mode) {
     const normalizedMode = basemapDefinitions[mode] ? mode : "none";
     const resolvedMode = isHistoricalImageryActive() ? "esri_imagery" : normalizedMode;
@@ -1572,28 +1981,97 @@ function applyHistoricalImagery(force = false) {
     updateDashboardChrome();
 }
 
-function renderOverlayLayer() {
-    const overlay = activeOverlay();
-    if (!overlay) {
+function parseBoundsFromMetadata(metadata) {
+    const bounds = {};
+    const layer = metadata?.tilestats?.layers?.[0];
+    if (layer && layer.attributes) {
+        for (const attr of layer.attributes) {
+            const name = attr.attribute;
+            if (attr.min !== undefined && attr.max !== undefined) {
+                bounds[name] = {
+                    min: attr.min,
+                    max: attr.max
+                };
+            }
+        }
+    }
+    return bounds;
+}
+
+function populateCellRenderModeSelect() {
+    const renderModeSelect = document.getElementById("renderMode");
+    renderModeSelect.innerHTML = cellRenderModeOptions
+        .map(
+            (option) =>
+                `<option value="${option.key}">${option.label}</option>`,
+        )
+        .join("");
+    renderModeSelect.value = currentCellRenderMode();
+}
+
+function updateCellRenderModeControlState() {
+    const renderModeSelect = document.getElementById("renderMode");
+    const renderModeLabel = document.getElementById("renderModeLabel");
+    if (!renderModeSelect || !renderModeLabel) {
         return;
     }
 
-    if (state.geoLayer) {
-        map.removeLayer(state.geoLayer);
+    const cellsAvailable = Boolean(state.overlays.cells);
+    const cellsActive = currentUnitKey() === "cells";
+
+    renderModeSelect.disabled = !cellsAvailable || !cellsActive;
+    renderModeSelect.value = currentCellRenderMode();
+
+    if (!cellsAvailable) {
+        renderModeLabel.textContent = "Cell render modes are unavailable for this dataset.";
+        return;
     }
 
-    state.geoLayer = L.geoJSON(overlay, {
-        style: (feature) => computeFeatureStyle(feature, false),
-        onEachFeature: (feature, layer) => {
-            layer.bindTooltip(() => buildTooltip(feature.properties), {
-                sticky: true,
-            });
-            layer.on({
-                mouseover: handleFeatureMouseOver,
-                mouseout: handleFeatureMouseOut,
-            });
-        },
-    }).addTo(map);
+    if (!cellsActive) {
+        renderModeLabel.textContent =
+            "Switch Analysis Units to Cells to compare PMTiles render modes.";
+        return;
+    }
+
+    const selectedMode = cellRenderModeOptions.find(
+        (option) => option.key === currentCellRenderMode(),
+    );
+    renderModeLabel.textContent = selectedMode?.helperLabel ?? "";
+}
+
+function renderOverlayLayer() {
+    clearPmtilesHover();
+
+    if (state.geoLayer) {
+        map.removeLayer(state.geoLayer);
+        state.geoLayer = null;
+    }
+
+    const unit = currentUnitKey();
+    if (unit === "cells") {
+        const overlay = currentCellOverlay();
+        if (!overlay) {
+            return;
+        }
+        state.geoLayer = overlay.pmtLayer.addTo(map);
+    } else {
+        const overlay = state.overlays.wards;
+        if (!overlay) {
+            return;
+        }
+        state.geoLayer = L.geoJSON(overlay, {
+            style: (feature) => computeFeatureStyle(feature, false),
+            onEachFeature: (feature, layer) => {
+                layer.bindTooltip(() => buildTooltip(feature.properties), {
+                    sticky: true,
+                });
+                layer.on({
+                    mouseover: handleFeatureMouseOver,
+                    mouseout: handleFeatureMouseOut,
+                });
+            },
+        }).addTo(map);
+    }
 }
 
 function updateMetricSelect() {
@@ -1619,17 +2097,29 @@ function updateLayer() {
     if (!state.geoLayer) {
         return;
     }
+    clearPmtilesHover();
     const periodLabel = document.getElementById("periodLabel");
     if (periodLabel) {
         periodLabel.textContent = currentPeriodKey();
     }
     updateTimelineMarkerPosition();
-    state.geoLayer.setStyle((feature) => computeFeatureStyle(feature, false));
+    if (state.geoLayer.setStyle) {
+        state.geoLayer.setStyle((feature) => computeFeatureStyle(feature, false));
+    } else if (state.geoLayer.redraw) {
+        state.geoLayer.redraw();
+    }
     updateHistoricalPlaybackButton();
     applyHistoricalImagery();
     updateLegend();
     updateSummaryCards();
     updateDashboardChrome();
+}
+
+function updateOpacityLayer() {
+    if (currentUnitKey() === "cells" && activePmtilesLayer()) {
+        renderOverlayLayer();
+    }
+    updateLayer();
 }
 
 function populateBasemapSelect() {
@@ -1758,26 +2248,41 @@ async function loadData() {
         "Loading summary, overlays, boundary, and Wayback imagery configuration.",
     );
     setLoadingProgress(0);
-    let overlayTotalBytesValue = null;
-    let overlayTotalBytesLabel = null;
     const [summary, overlay, boundary, wardOverlay, waybackConfig] = await Promise.all([
         loadResource("summary", "summary.json"),
-        loadResource("overlay", "https://proxy.pythonicvarun.me/https://github.com/PythonicVarun/olmoearth-change-insights/releases/download/assets-2026-05-19/surat-overlay.geojson", {
-            progressMessageBuilder: ({ loadedBytes, totalBytes, done }) => {
-                if (done) {
-                    return "Overlay loaded. Finishing setup.";
-                }
-                if (totalBytes) {
-                    if (overlayTotalBytesValue !== totalBytes) {
-                        overlayTotalBytesValue = totalBytes;
-                        overlayTotalBytesLabel = formatBytesWithMbUnit(totalBytes);
-                    }
-                    const percentage = Math.round((loadedBytes / totalBytes) * 100);
-                    return `Loading overlay.geojson: ${percentage}% (${formatBytesWithMbUnit(loadedBytes)} of ${overlayTotalBytesLabel})`;
-                }
-                return `Loading overlay.geojson: ${formatBytesWithMbUnit(loadedBytes)} downloaded`;
-            },
-        }),
+        (async () => {
+            try {
+                updateProgressUi("Initializing PMTiles overlay...");
+                const overlayUrl = "overlay.pmtiles";
+                const variationPromise = createPmtilesCellLayer(overlayUrl, {
+                    autoscaleMode: "variation",
+                });
+                const aggregatePromise = createPmtilesCellLayer(overlayUrl, {
+                    autoscaleMode: "aggregate",
+                });
+
+                const variation = await variationPromise;
+                activeProgress["overlay"] = 0.55;
+                updateProgressUi("Per-cell PMTiles renderer ready. Loading aggregate view...");
+
+                const aggregate = await aggregatePromise;
+                activeProgress["overlay"] = 0.9;
+                updateProgressUi("PMTiles renderers loaded. Setting up layer...");
+
+                markResourceComplete("overlay");
+                return {
+                    variation,
+                    aggregate,
+                    header: variation?.header ?? aggregate?.header ?? null,
+                    metadata: variation?.metadata ?? aggregate?.metadata ?? null,
+                };
+            } catch (err) {
+                console.error("Error loading PMTiles overlay:", err);
+                activeProgress["overlay"] = 1.0;
+                markResourceComplete("overlay");
+                return null;
+            }
+        })(),
         loadResource("boundary", "boundary.geojson", { optional: true }),
         loadResource("wardOverlay", "ward_overlay.geojson", { optional: true }),
         loadResource("waybackConfig", WAYBACK_CONFIG_URL, { optional: true }),
@@ -1788,13 +2293,14 @@ async function loadData() {
     state.overlays.wards = wardOverlay?.features?.length ? wardOverlay : null;
     state.historicalSnapshots = waybackConfig ? parseWaybackSnapshots(waybackConfig) : [];
     state.periods = summary.config.periods.map((value) => `${value}y`);
-    state.boundsByProperty.cells = computeBoundsByProperty(overlay.features);
+    state.boundsByProperty.cells = parseBoundsFromMetadata(overlay?.metadata);
     state.boundsByProperty.wards = state.overlays.wards
         ? computeBoundsByProperty(state.overlays.wards.features)
         : {};
 
     populateBasemapSelect();
     populateHistoricalImagerySelect();
+    populateCellRenderModeSelect();
     populateUnitSelect();
     applyInitialControlState();
 
@@ -1850,6 +2356,9 @@ async function loadData() {
 }
 
 map.on("moveend zoomend", updateMapTelemetry);
+map.on("mousemove", handleMapMouseMove);
+map.on("movestart zoomstart", clearPmtilesHover);
+L.DomEvent.on(map.getContainer(), "mouseleave", clearPmtilesHover);
 
 document.getElementById("unit").addEventListener("change", () => {
     updateMetricSelect();
@@ -1859,6 +2368,13 @@ document.getElementById("unit").addEventListener("change", () => {
 
 document.getElementById("metric").addEventListener("change", (event) => {
     updateMetricSelect();
+    updateLayer();
+});
+
+document.getElementById("renderMode").addEventListener("change", (event) => {
+    state.cellRenderMode =
+        normalizeCellRenderMode(event.target.value) ?? state.cellRenderMode;
+    renderOverlayLayer();
     updateLayer();
 });
 
@@ -2048,8 +2564,8 @@ if (timelineGradientContainer && periodInput) {
 }
 
 const opacityInput = document.getElementById("opacity");
-opacityInput.addEventListener("input", updateLayer);
-opacityInput.addEventListener("change", updateLayer);
+opacityInput.addEventListener("input", updateOpacityLayer);
+opacityInput.addEventListener("change", updateOpacityLayer);
 
 function updateRangeProgress(input) {
     const min = parseFloat(input.min) || 0;
@@ -2102,7 +2618,7 @@ loadData().catch((error) => {
         `Could not load ${currentAreaLabel()} analysis`;
     document.getElementById("subtitle").textContent =
         `${error.message}. Serve the output directory with a local web server, such as ` +
-        "`python -m http.server`, instead of opening this page directly from disk.";
+        "a range-capable static server, instead of opening this page directly from disk.";
     console.error(error);
 });
 
