@@ -606,6 +606,25 @@ const INSIGHTS = [
             { label: "Times of India", url: "https://timesofindia.indiatimes.com/india/new-parliament-building-has-inbuilt-processes-to-make-it-energy-efficient/photostory/100547090.cms" },
         ],
     },
+    {
+        title: "From Scrubland to Cricketing Crown Jewel: The Rise of BCCI's Mega Centre of Excellence",
+        location: "Bengaluru",
+        content:
+            "Moving away from its cramped legacy setup, the newly inaugurated BCCI Centre of Excellence in North Bengaluru has officially transformed 40 acres of rural scrubland into the ultimate high-tech sanctuary for Indian cricket. The massive complex boasts three world-class grounds with custom red and black soil pitches alongside a cutting-edge subsurface drainage system designed to eliminate rain delays entirely. Housing a massive 16,000-square-foot sports science and medicine block, this elite facility is engineered to serve as the national nursery for next-gen athletes and world-class rehabilitation. By trading barren acreage for state-of-the-art sports infrastructure, India has firmly solidified its global dominance in the game's modern, data-driven era.",
+        then: {
+            date: "21st Jan, 2015",
+            image: "./outputs/bengaluru/bcci_coe/2015.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/bengaluru/?basemap=esri_imagery&metric=vegetation_delta&renderMode=variation&unit=cells&period=10y&opacity=0.00&historical=timeline&speed=1200&lat=13.16463&lng=77.71164&zoom=18.00&historicalDate=2015-01-21",
+        },
+        now: {
+            date: "18th Dec, 2025",
+            image: "./outputs/bengaluru/bcci_coe/2025.png",
+            url: "https://pythonicvarun.github.io/olmoearth-change-insights/outputs/bengaluru/?basemap=esri_imagery&metric=vegetation_delta&renderMode=variation&unit=cells&period=10y&opacity=0.00&historical=base&speed=1200&lat=13.16463&lng=77.71164&zoom=18.00&historicalDate=2025-12-18",
+        },
+        references: [
+            { label: "India Today", url: "https://www.indiatoday.in/sports/cricket/story/bcci-inaugurates-nca-excellence-in-cricket-in-bengaluru-2608259-2024-09-29" },
+        ],
+    },
 ];
 
 function escapeHtml(s) {
