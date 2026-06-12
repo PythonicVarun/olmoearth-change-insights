@@ -5,3 +5,8 @@ outputs/kanpur_nagar/overlay.geojson
 outputs/chengalputtu/overlay.geojson
 
 .venv/
+
+# Large PMTiles files (> 50MB)
+outputs/jaipur/overlay.pmtiles
+outputs/pune/overlay.pmtiles
+outputs/surat/overlay.pmtiles

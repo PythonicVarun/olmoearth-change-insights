@@ -2253,7 +2253,7 @@ async function loadData() {
         (async () => {
             try {
                 updateProgressUi("Initializing PMTiles overlay...");
-                const overlayUrl = "overlay.pmtiles";
+                const overlayUrl = "https://proxy.pythonicvarun.me/https://github.com/PythonicVarun/olmoearth-change-insights/releases/download/assets-2026-06-12/surat-overlay.pmtiles";
                 const variationPromise = createPmtilesCellLayer(overlayUrl, {
                     autoscaleMode: "variation",
                 });
